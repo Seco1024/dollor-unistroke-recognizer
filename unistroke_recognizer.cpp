@@ -1,6 +1,7 @@
 #include <vector>
 #include <iostream>
 #include <cmath>
+#include <windows.h>
 #define PI 3.14159265
 
 using namespace std;
@@ -13,9 +14,9 @@ public:
 };
 
 //rectangle 
-class Rectangle{
+class rectangle{
 public:
-    Rectangle(double leftx, double rightx, double topy, double bottomy){
+    rectangle(double leftx, double rightx, double topy, double bottomy){
         this->leftX_ = leftx;
         this->rightX_ = rightx;
         this->topY_ = topy;
@@ -34,7 +35,7 @@ private:
     double bottomY_;
 };
 
-void Rectangle::setRangeX(int x1, int x2){
+void rectangle::setRangeX(int x1, int x2){
     if(x1 < x2){
         leftX_ = x1;
         rightX_ = x2;
@@ -45,7 +46,7 @@ void Rectangle::setRangeX(int x1, int x2){
     }
 }
 
-void Rectangle::setRangeY(int y1, int y2){
+void rectangle::setRangeY(int y1, int y2){
     if (y1 >= y2){
         topY_ = y1;
         bottomY_ = y2;
@@ -68,7 +69,7 @@ double Diagonal = sqrt(SquareSize * SquareSize + SquareSize * SquareSize);
 double HalfDiagonal = 0.5 * Diagonal;
 double AngleRange = (45.0 * PI / 180.0);
 double AnglePrecision = (2.0 * PI / 180.0);
-double Phi = 0.5 * (-1.0 + sqrt(5.0)); // ÈªÉÈáëÊØî‰æã
+double Phi = 0.5 * (-1.0 + sqrt(5.0)); // ∂¿™˜§Ò®“
 
 //distance
 double Distance(Point p1, Point p2){
@@ -89,9 +90,9 @@ double PathLength(vector<Point> points){
 // $1 Unistroke Recognizer Algorithm
 //resample
 vector<Point> Resample(vector<Point> points, int n){
-    double I = PathLength(points) / (n - 1); //ÁêÜÊÉ≥ÂçÄÊÆµÈï∑Â∫¶
+    double I = PathLength(points) / (n - 1); //≤z∑Q∞œ¨q™¯´◊
     double D = 0.0;
-    vector<Point> newpoints; //ÈáçÊñ∞ÂèñÊ®£ÂæåÁöÑÁµÑÂêà
+    vector<Point> newpoints; //≠´∑s®˙ºÀ´·™∫≤’¶X
     newpoints.push_back(points[0]);
     for (int i = 1; i < points.size(); i++){
         double d = Distance(points[i-1], points[i]);
@@ -143,7 +144,7 @@ vector<Point> RotateBy(vector<Point> points, double radians){
 }
 
 //bounding box
-Rectangle *BoundingBox(vector<Point> points){
+rectangle *BoundingBox(vector<Point> points){
     double minX = +1.0e10;
     double maxX = -1.0e10;
     double minY = +1.0e10;
@@ -154,12 +155,12 @@ Rectangle *BoundingBox(vector<Point> points){
         if (points[i].y < minY) minY = points[i].y;
         if (points[i].y > maxY) maxY = points[i].y;
     }
-    return new Rectangle(minX, maxX, maxY, minY);
+    return new rectangle(minX, maxX, maxY, minY);
 }
 
 //scale to
 vector<Point> ScaleTo(vector<Point> points, double size){
-    Rectangle *boundingBox = BoundingBox(points);
+    rectangle *boundingBox = BoundingBox(points);
     vector<Point> newpoints;
     for (int i = 0; i < points.size(); i++){
         double qx = points[i].x * (size / (boundingBox->rightX() - boundingBox->leftX()));
@@ -224,18 +225,18 @@ double DistanceAtBestAngle(vector<Point> points, vector<Point> T, double a, doub
 class Unistroke{
 public:
     Unistroke(string name, vector<Point> points): name_(name), points_(points) {
-        this->points_ = Resample(this->points_, 64); //resampleÊàê64ÂÄãÈªû
-        double radians = IndicativeAngle(this->points_); //ÂèñËßíÂ∫¶
-        this->points_ = RotateBy(this->points_, -radians); //ÊóãËΩâ
-        this->points_ = ScaleTo(this->points_, SquareSize); //Á∏ÆÊîæ
-        this->points_ = TranslateTo(this->points_, Origin); //Âπ≥Áßª
+        this->points_ = Resample(this->points_, 64); //resample¶®64≠”¬I
+        double radians = IndicativeAngle(this->points_); //®˙®§´◊
+        this->points_ = RotateBy(this->points_, -radians); //±€¬‡
+        this->points_ = ScaleTo(this->points_, SquareSize); //¡Y©Ò
+        this->points_ = TranslateTo(this->points_, Origin); //•≠≤æ
     }
     string setName(string name) {
         this->name_ = name;
         return this->name_;
-    }  //Êõ¥ÊîπÂêçÂ≠ó
-    string getName() {return this->name_;} //ÂèñÂæóÂêçÂ≠ó
-    vector<Point> points(){return this->points_;} //ÂõûÂÇ≥Èªû
+    }  //ßÛßÔ¶W¶r
+    string getName() {return this->name_;} //®˙±o¶W¶r
+    vector<Point> points(){return this->points_;} //¶^∂«¬I
 private:
     string name_;
     vector<Point> points_;
@@ -261,16 +262,55 @@ public:
             return new Result(this->templates_[u].getName(), 1.0 - b / HalfDiagonal);
         }
     }
+    void AddTemplate(string name, vector<Point> points){
+        this->templates_.push_back(Unistroke(name, points));
+    }
 private:
-    vector<Unistroke> templates_ = 
-    {Unistroke("triangle", {Point(137,139),Point(135,141), Point(133,144), Point(132,146), Point(130,149),Point(128,151),Point(126,155),Point(123,160),Point(120,166),Point(116,171),Point(112,177),Point(107,183),Point(102,188),Point(100,191),Point(95,195),Point(90,199),Point(86,203), Point(82,206), Point(80,209), Point(75,213),Point(67,219), Point(64,221), Point(61,223),Point(60,225), Point(62,226),Point(65,225),Point(67,226),Point(74,226),Point(77,227),Point(85,229),Point(91,230),Point(99,231),Point(108,232),Point(116,233),Point(125,233),Point(134,234),Point(145,233),Point(153,232),Point(160,233),Point(170,234),Point(177,235),Point(179,236),Point(186,237),Point(193,238),Point(198,239),Point(200,237),Point(202,239),Point(204,238),Point(206,234),Point(205,230),Point(202,222),Point(197,216),Point(192,207),Point(186,198),Point(179,189),Point(174,183),Point(170,178),Point(164,171),Point(161,168),Point(154,160),Point(148,155),Point(143,150),Point(138,148),Point(136,148)})
-    , Unistroke("one", {Point(61,223),Point(60,225), Point(62,226),Point(65,225),Point(67,226),Point(74,226),Point(77,227),Point(85,229),Point(91,230),Point(99,231),Point(108,232),Point(116,233),Point(125,233),Point(134,234),Point(145,233),Point(153,232),Point(160,233),Point(170,234),Point(177,235),Point(179,236),Point(186,237),Point(193,238),Point(198,239),Point(200,237),Point(202,239),Point(204,238),Point(206,234),Point(205,230),Point(202,222),Point(197,216),Point(192,207),Point(186,198),Point(179,189),Point(174,183),Point(170,178),Point(164,171),Point(161,168),Point(154,160),Point(148,155),Point(143,150),Point(138,148),Point(136,148)})};
+    vector<Unistroke> templates_;
 };
 
+
+vector<Point> CaptureUnistroke(void){
+    vector<Point> points;
+    while (1)
+    {
+        if (GetAsyncKeyState(VK_LBUTTON))
+        {
+            POINT pnt;
+            GetCursorPos(&pnt);
+            ScreenToClient(GetForegroundWindow(), &pnt);
+
+            // std::cout << "x: " << pnt.x << " y: " << pnt.y << std::endl;
+            points.push_back(Point(pnt.x, pnt.y));
+            Sleep(10);
+        }else if (GetAsyncKeyState(VK_RBUTTON)){
+            Sleep(300);
+            break;
+        }else{
+            continue;
+        }
+    }
+    return points;
+}
+
 int main(void){
-    vector<Point> points = {Point(61,223),Point(60,225), Point(62,226),Point(65,225),Point(67,226),Point(74,226),Point(77,227),Point(85,229),Point(91,230),Point(99,231),Point(108,232),Point(116,233),Point(125,233),Point(134,234),Point(145,233),Point(153,232),Point(160,233),Point(170,234),Point(177,235),Point(179,236),Point(186,237),Point(193,238),Point(198,239),Point(200,237),Point(202,239),Point(204,238),Point(206,234),Point(205,230),Point(202,222),Point(197,216),Point(192,207),Point(186,198),Point(179,189),Point(174,183),Point(170,178),Point(164,171),Point(161,168),Point(154,160),Point(148,155),Point(143,150),Point(138,148),Point(136,148)};
+    string n[10] = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"};
     DollarRecognizer D;
-    struct Result* result = D.Recognize(points);
-    cout << result->name << result->score << endl;
+    vector<Point> points;
+    cout << "´ˆ¶Ì•™¡‰•H∂i¶Ê®˙ºÀ°Aßπ¶®´·Ω–´ˆ•k¡‰µ≤ßÙ" << endl;
+    for (int i = 0; i < 10; i++){
+        cout << "Ω–øÈ§J" << n[i] << endl;
+        points = CaptureUnistroke();
+        cout << "ßπ¶®°A•[§J§§" << n[i] << endl;
+        D.AddTemplate(n[i], points);
+        points.clear();
+    }
+    cout << "§w∏gßπ¶®®˙ºÀ°C≤{¶bΩ–øÈ§J¥˙∏’∏ÍÆ∆" << endl;
+    for (int i = 0; i < 5; i++){
+        cout << "≤ƒ" << i+1 << "µß¥˙∏’∏ÍÆ∆" << endl;
+        vector<Point> candidatepoints = CaptureUnistroke();  //®˙±o§‚∂’
+        struct Result* result = D.Recognize(candidatepoints);
+        cout << "≤ƒ" << i+1 << "µß¥˙∏’∏ÍÆ∆    øÎßOµ≤™G¨∞:"<< result->name << "     §¿º∆¨∞" << result->score << endl;
+    }
     return 0;
 }
